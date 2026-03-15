@@ -6,9 +6,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const ACCOUNT_ID    = process.env.ZOOM_ACCOUNT_ID;
-const CLIENT_ID     = process.env.ZOOM_CLIENT_ID;
-const CLIENT_SECRET = process.env.ZOOM_CLIENT_SECRET;
+const ACCOUNT_ID = 'lZCTdHz5Sb-hPm6uElKeCg';
+const CLIENT_ID = 'EB1e94r_SyWyZCrJ4x8pg';
+const CLIENT_SECRET = 'QVnGL2xncGt4RPGyoBsUnMnNRVG29KYI';
 
 async function getAccessToken() {
   const credentials = Buffer.from(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64');
