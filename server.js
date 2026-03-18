@@ -25,6 +25,51 @@ const ACCOUNT_ID    = process.env.ZOOM_ACCOUNT_ID;
 const CLIENT_ID     = process.env.ZOOM_CLIENT_ID;
 const CLIENT_SECRET = process.env.ZOOM_CLIENT_SECRET;
 
+// ── CSS Proxy helper ──────────────────────────────────
+async function proxyCss(zoomUrl, fallbackUrl, res) {
+    res.setHeader('Content-Type', 'text/css');
+    res.setHeader('Cache-Control', 'public, max-age=604800');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    try {
+        const response = await fetch(zoomUrl, {
+            headers: {
+                'Referer':    'https://zoom.us/',
+                'User-Agent': 'Mozilla/5.0'
+            }
+        });
+        if (response.ok) {
+            return res.send(await response.text());
+        }
+        throw new Error('Status ' + response.status);
+    } catch (err) {
+        console.warn('Zoom CSS fetch failed, using fallback:', err.message);
+        try {
+            const fallback = await fetch(fallbackUrl);
+            res.send(await fallback.text());
+        } catch (e) {
+            res.status(500).send('/* Could not load CSS */');
+        }
+    }
+}
+
+// ── Zoom CSS Routes ───────────────────────────────────
+app.get('/zoom-css/bootstrap.css', (req, res) => {
+    proxyCss(
+        'https://source.zoom.us/5.1.4/css/bootstrap.css',
+        'https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css',
+        res
+    );
+});
+
+app.get('/zoom-css/react-select.css', (req, res) => {
+    proxyCss(
+        'https://source.zoom.us/5.1.4/css/react-select.css',
+        'https://cdnjs.cloudflare.com/ajax/libs/react-select/1.0.0/react-select.min.css',
+        res
+    );
+});
+
 // ── Get Access Token ──────────────────────────────────
 async function getAccessToken() {
     const credentials = Buffer.from(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64');
